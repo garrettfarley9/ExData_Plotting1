@@ -1,19 +1,16 @@
-#rm(list=ls())
-library(dplyr)
+rm(list=ls())
 library(readr)
+library(dplyr)
 library(lubridate)
-library(ggplot2)
 opened<-("2020-04-26 13:36:59") #Sys.time
 
-#file<-read_delim("exdata_data_household_power_consumption.zip", ";", na = c("", "NA", "?"))
+ file<-read_delim("exdata_data_household_power_consumption.zip", ";", na = c("", "NA", "?"))
+ to_plot<- select(file, Date, Time, Global_active_power)%>%
+         filter(Date == "1/2/2007" | Date == "2/2/2007")
+to_plot$DateTime <- strptime(paste(to_plot$Date, to_plot$Time), format="%d/%m/%Y %H:%M:%S")
+to_plot$Wday <- wday(to_plot$DateTime, label=TRUE)
+plot2<-plot(to_plot$DateTime, to_plot$Global_active_power, type = "l", lty = 1,
+        ylab ="Global Active Power (kilowatts)", xlab = " ")
 
-to_plot<-filter(file, Date == "1/2/2007" | Date == "2/2/2007")
-d<- mutate(to_plot, Date = as.POSIXct(to_plot$Date, format = "%d/%m/%Y"))%>%
-        mutate(Date = wday(Date, label=TRUE))%>%
-        
-
-g<-ggplot(data = d, aes(Time, Global_active_power))+geom_line()
-        #qplot(Date, Global_active_power, data = to_plot, geom = "line")
-
-# example df$DateTime <- strptime(paste(df$Date, df$Time), format="%d/%m/%Y %H:%M:%S")
-# wday(df$DateTime, label=TRUE)
+dev.copy(png, file ="plot2.png")
+dev.off()
